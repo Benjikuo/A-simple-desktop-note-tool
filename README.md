@@ -5,11 +5,11 @@ This program is my first open source project!
 <br>
 
 ### Keyboard shortcut
-<p> Ctrl + S: save your note </p>
-<p> Ctrl + R: move right bottom corner of the screen </p>
+Ctrl + S: save your note  
+Ctrl + R: move right bottom corner of the screen  
 
 <br>
 
 ### Don't forget
-<p> A little note today, a big change tomorrow. </p>
-<p> Your words shape your journey ^_^ </p>
+A little note today, a big change tomorrow.  
+Your words shape your journey ^_^  
