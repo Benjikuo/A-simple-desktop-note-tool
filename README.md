@@ -4,6 +4,8 @@ This program is my first open source project!
 
 <p>
   <img src="screenshot.png" width="300">
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="screenshot2.png" width="340">
 </p>
 
 <br>
