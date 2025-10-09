@@ -1,6 +1,6 @@
 # A-simple-desktop-note
 <p> A lightweight Python desktop note-taking program. </p>
-<p> This project is my first open source project!</p>
+<p> This program is my first open source project!</p>
 
 <br>
 
