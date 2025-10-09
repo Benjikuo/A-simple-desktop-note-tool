@@ -1,6 +1,10 @@
-# A-simple-desktop-note
+# A-simple-desktop-note-tool
 A lightweight Python desktop note-taking program.  
 This program is my first open source project!  
+
+<p align="center">
+  <img src="./image/screenshot.png">
+</p>
 
 <br>
 
