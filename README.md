@@ -5,8 +5,8 @@
 <br>
 
 ### Keyboard shortcut
-<p> Ctrl + S: save files </p>
-<p> Ctrl + R: move right </p>
+<p> Ctrl + S: save your note </p>
+<p> Ctrl + R: move right bottom corner of the screen </p>
 
 <br>
 
