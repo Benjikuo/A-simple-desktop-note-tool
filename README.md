@@ -2,7 +2,7 @@
 A lightweight Python desktop note-taking program.  
 This program is my first open source project!  
 
-\n
+<br>
 
 ### Keyboard shortcut
 Ctrl + S: save your note  
