@@ -1,9 +1,8 @@
 # A-simple-desktop-note
 A lightweight Python desktop note-taking program.  
 This program is my first open source project!  
-
-<br>
-
+  
+  
 ### Keyboard shortcut
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
