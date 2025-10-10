@@ -15,12 +15,12 @@ This program is my first open source project!
 
 <br>
 
-### Keyboard shortcut
+## Keyboard shortcut
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
 
 <br>
 
-### Don't forget
+## Don't forget
 A little note today, a big change tomorrow.  
 Your words shape your journey ^_^  
