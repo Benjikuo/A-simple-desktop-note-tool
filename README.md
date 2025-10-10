@@ -9,7 +9,7 @@ This program is my first open source project!
 </p>
 
 ## Why I built this
-- It's convenient to jot down to-do lists directly on the desktop
+- It's convenient to jot down to-do lists directly on the desktop.
 - It serves as a digital alternative to sticky notes, saving both space and paper.  
 - It helps capture sudden ideas before they slip away.
 
