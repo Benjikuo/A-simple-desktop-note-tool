@@ -73,7 +73,10 @@ def on_text_change(event):
 
 def auto_indent(event):
     current_line = text.get("insert linestart", "insert")
-    if current_line.startswith("- "):
+    if current_line.strip() == "-":
+        text.delete("insert linestart", "insert lineend")
+        return "break"
+    elif current_line.startswith("- "):
         text.insert("insert", "\n- ")
         return "break"
     else:
