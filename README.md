@@ -16,13 +16,13 @@ This program is my first open source project!
 <br>
 
 ## Keyboard and Mouse Controls
-**keyboard**  
+**Keyboard**  
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
 
-**mouse**  
-Right click: drag note  
-Middle click: close note  
+**Mouse**  
+Right Click: drag note  
+Middle Click: close note  
 
 <br>
 
