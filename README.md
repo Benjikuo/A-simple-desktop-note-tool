@@ -20,9 +20,9 @@ This program is my first open source project!
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
 
-**mouse**
-right click: drag note  
-middle click: close note  
+**mouse**  
+Right click: drag note  
+Middle click: close note  
 
 <br>
 
