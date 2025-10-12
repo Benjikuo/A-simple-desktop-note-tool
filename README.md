@@ -15,7 +15,9 @@ This program is my first open source project!
 
 <br>
 
-## Keyboard shortcut
+## Keyboard and Mouse Controls
+right click: drag note
+middle click: close note
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
 
