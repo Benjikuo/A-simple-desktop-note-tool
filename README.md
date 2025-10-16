@@ -8,14 +8,14 @@ This program is my first open source project!
   <img src="./images/screenshot2.png" width="340">
 </p>
 
-## Why I built this
+## 🛠️ Why I built this
 - It's convenient to jot down to-do lists directly on the desktop.
 - It serves as a digital alternative to sticky notes, saving both space and paper.  
 - It helps capture sudden ideas before they slip away.
 
 <br>
 
-## Keyboard and Mouse Controls
+## 💻 Keyboard and Mouse Controls
 **Keyboard**  
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
@@ -26,6 +26,6 @@ Middle Click: close note
 
 <br>
 
-## Don't forget
+## 💬 Don't forget
 A little note today, a big change tomorrow.  
 Your words shape your journey ^_^  
