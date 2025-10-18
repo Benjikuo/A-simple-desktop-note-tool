@@ -76,7 +76,11 @@ def auto_indent(event):
     if current_line.strip() == "-":
         text.delete("insert linestart", "insert lineend")
         return "break"
-    elif current_line.startswith("- "):
+    elif (
+        current_line.startswith("- ")
+        or current_line.endswith(":")
+        or current_line.endswith("：")
+    ):
         text.insert("insert", "\n- ")
         return "break"
     else:
@@ -147,6 +151,7 @@ text = tk.Text(
 text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
+root.bind("<Button-2>", lambda e: on_close())
 root.bind("<Control-s>", lambda e: save_note())
 root.bind("<Control-r>", lambda e: move_to_bottom_right())
 text.bind("<Return>", auto_indent)
