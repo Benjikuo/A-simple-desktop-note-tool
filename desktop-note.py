@@ -53,7 +53,7 @@ def move_to_bottom_right():
     w = root.winfo_width()
     h = root.winfo_height()
     x = screen_width - w
-    y = screen_height - h - 50
+    y = screen_height - h - 48
     root.geometry(f"+{x}+{y}")
 
 
