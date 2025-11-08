@@ -28,4 +28,4 @@ Middle Click: close note
 
 ## 💬 Don't forget
 A little note today, a big change tomorrow.  
-Your words shape your journey ^_^  
+Your words shape your journey. ^_^  
