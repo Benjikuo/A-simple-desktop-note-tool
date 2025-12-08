@@ -43,6 +43,7 @@ def save_note():
             indent=2,
         )
     close_btn.config(text="✕")
+    text.edit_modified(False)
 
 
 def load_note():
