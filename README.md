@@ -1,6 +1,6 @@
 # A-simple-desktop-note-tool
 A lightweight Python desktop note-taking program.  
-This program is my first open source project!  
+This program is **my first open source project!**  
 
 Check my update👉🏻 
 
