@@ -4,7 +4,10 @@ import os
 import ctypes
 
 SAVE_FILE = "note.json"
+pages = [""]
+current_page = 0
 
+# window
 root = tk.Tk()
 root.overrideredirect(True)
 
@@ -13,27 +16,76 @@ screen_width = user32.GetSystemMetrics(0)
 screen_height = user32.GetSystemMetrics(1)
 
 
+def get_last_valid_page():
+    last = 0
+
+    for i, content in enumerate(pages):
+        if content.strip() != "":
+            last = i
+
+    return last
+
+
 def save_note():
-    content = text.get("1.0", "end-1c")
+    pages[current_page] = text.get("1.0", "end-1c")
+
+    end = max(get_last_valid_page(), current_page)
+    cleaned_pages = pages[: end + 1]
+
+    pages.clear()
+    pages.extend(cleaned_pages)
+
     with open(SAVE_FILE, "w", encoding="utf-8") as f:
-        json.dump({"content": content}, f, ensure_ascii=False, indent=2)
+        json.dump(
+            {"pages": pages},
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
     close_btn.config(text="✕")
 
 
 def load_note():
+    global pages, current_page
     if os.path.exists(SAVE_FILE):
         try:
             with open(SAVE_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            text.insert("1.0", data.get("content", ""))
-        except Exception:
-            pass
+            pages = data.get("pages", pages)
+        except:
+            pages = [""]
+
+    text.delete("1.0", "end")
+    text.insert("1.0", pages[current_page])
 
 
 def on_close():
     save_note()
     text.config(bg="white")
     root.after(50, root.destroy)
+
+
+def switch_page(offset):
+    global current_page
+    pages[current_page] = text.get("1.0", "end-1c")
+    last_page = get_last_valid_page()
+    current_page += offset
+
+    if current_page < 0:
+        prev_btn.config(fg="#ff3300")
+        current_page = 0
+
+    if current_page < last_page:
+        next_btn.config(text="〉")
+    else:
+        next_btn.config(text="》")
+
+    if current_page >= len(pages):
+        pages.append("")
+
+    text.delete("1.0", "end")
+    text.insert("1.0", pages[current_page])
+    page_label.config(text=str(current_page + 1))
 
 
 def start_move(event):
@@ -58,14 +110,24 @@ def move_to_bottom_right():
 
 
 def auto_resize():
-    lines = int(text.index("end-1c").split(".")[0])
+    max_lines = 1
+    for p in pages:
+        lines = p.count("\n") + 1
+        if lines > max_lines:
+            max_lines = lines
+
     line_height = 20
-    new_height = min(max(lines * line_height, 200) + 100, 550)
+    new_height = min(max(max_lines * line_height, 200) + 100, 550)
     root.geometry(f"200x{new_height}+{root.winfo_x()}+{root.winfo_y()}")
-    root.after(200, auto_resize)
+    root.after(500, auto_resize)
 
 
 def on_text_change(event):
+    ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
+
+    if event.keysym in ignore_keys:
+        return
+
     if text.edit_modified():
         close_btn.config(text="●")
         text.edit_modified(False)
@@ -88,16 +150,18 @@ def auto_indent(event):
 
 
 def on_enter(e):
-    close_btn.config(fg="orange")
+    e.widget.config(fg="orange")
 
 
 def on_leave(e):
-    close_btn.config(fg="white")
+    e.widget.config(fg="white")
 
 
+# title bar
 titlebar = tk.Frame(root, bg="#1e1e1e", relief="raised", pady=5)
 titlebar.pack(fill="x", side="top")
 
+# title
 title = tk.Label(
     titlebar,
     text="A Note",
@@ -112,6 +176,48 @@ titlebar.bind("<B1-Motion>", do_move)
 title.bind("<Button-1>", start_move)
 title.bind("<B1-Motion>", do_move)
 
+# page frame
+mid_frame = tk.Frame(titlebar, bg="#1e1e1e")
+mid_frame.pack(side="left", expand=True)
+
+# <
+prev_btn = tk.Label(
+    mid_frame,
+    text="〈",
+    fg="white",
+    bg="#1e1e1e",
+    font=("Microsoft JhengHei", 11, "bold"),
+)
+prev_btn.pack(side="left", padx=0)
+prev_btn.bind("<Enter>", on_enter)
+prev_btn.bind("<Leave>", on_leave)
+prev_btn.bind("<Button-1>", lambda e: switch_page(-1))
+
+# page number
+page_label = tk.Label(
+    mid_frame,
+    text="1",
+    fg="white",
+    bg="#1e1e1e",
+    font=("Microsoft JhengHei", 11, "bold"),
+)
+page_label.pack(side="left", padx=0)
+
+# >
+next_btn = tk.Label(
+    mid_frame,
+    text="〉",
+    fg="white",
+    bg="#1e1e1e",
+    font=("Microsoft JhengHei", 11, "bold"),
+)
+next_btn.pack(side="left", padx=0)
+next_btn.bind("<Enter>", on_enter)
+next_btn.bind("<Leave>", on_leave)
+next_btn.bind("<Button-1>", lambda e: switch_page(1))
+
+
+# ✕
 close_btn = tk.Label(
     titlebar,
     text="✕",
@@ -151,16 +257,20 @@ text = tk.Text(
 text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
+# key
 root.bind("<Button-2>", lambda e: on_close())
 root.bind("<Control-s>", lambda e: save_note())
 root.bind("<Control-r>", lambda e: move_to_bottom_right())
 text.bind("<Return>", auto_indent)
 text.bind("<KeyRelease>", on_text_change)
 
+# close
 root.protocol("WM_DELETE_WINDOW", on_close)
 
+# start
 load_note()
 auto_resize()
+switch_page(0)
 text.edit_reset()
 root.after(10, move_to_bottom_right)
 root.mainloop()
