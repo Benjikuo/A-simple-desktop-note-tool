@@ -110,16 +110,22 @@ def move_to_bottom_right():
 
 
 def auto_resize():
-    max_lines = 1
-    for p in pages:
-        lines = p.count("\n") + 1
-        if lines > max_lines:
-            max_lines = lines
+    pages[current_page] = text.get("1.0", "end-1c")
 
+    def count_lines(text_value):
+        lines = text_value.splitlines(keepends=True)
+
+        if text_value.endswith("\n"):
+            return len(lines) + 2
+        else:
+            return len(lines) + 1
+
+    max_lines = max(count_lines(p) for p in pages)
     line_height = 20
     new_height = min(max(max_lines * line_height, 200) + 100, 550)
+
     root.geometry(f"200x{new_height}+{root.winfo_x()}+{root.winfo_y()}")
-    root.after(500, auto_resize)
+    root.after(200, auto_resize)
 
 
 def on_text_change(event):
