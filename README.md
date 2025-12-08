@@ -2,6 +2,8 @@
 A lightweight Python desktop note-taking program.  
 This program is my first open source project!  
 
+Check my update👉🏻 
+
 <p>
   <img src="./images/screenshot.png" width="300">
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
