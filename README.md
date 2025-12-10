@@ -17,6 +17,9 @@ This program is **my first open source project!**
 **Keyboard**  
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
+Ctrl + A: selects everything in the document  
+Ctrl + Z: undo the last change  
+Ctrl + Y: redo the last change  
 
 **Mouse**  
 Right Click: drag note  
