@@ -1,11 +1,15 @@
+import tkinter.font as tkfont
 import tkinter as tk
 import json
 import os
+import re
 import ctypes
 
 SAVE_FILE = "note.json"
+
 pages = [""]
 current_page = 0
+is_getting = False
 
 # window
 root = tk.Tk()
@@ -16,14 +20,42 @@ screen_width = user32.GetSystemMetrics(0)
 screen_height = user32.GetSystemMetrics(1)
 
 
-def get_last_valid_page():
-    last = 0
+def render_note(content):
+    text.delete("1.0", "end")
+    text.insert("1.0", content)
 
-    for i, content in enumerate(pages):
-        if content.strip() != "":
-            last = i
+    red = r"x .*? x"
+    orange = r"\[.*?\]"
+    yellow = r"\(.*?\)"
 
-    return last
+    for match in re.finditer(red, content):
+        start, end = match.span()
+        text.tag_add("red", f"1.0+{start}c", f"1.0+{end}c")
+
+    for match in re.finditer(orange, content):
+        start, end = match.span()
+        text.tag_add("orange", f"1.0+{start}c", f"1.0+{end}c")
+
+    for match in re.finditer(yellow, content):
+        start, end = match.span()
+        text.tag_add("yellow", f"1.0+{start}c", f"1.0+{end}c")
+
+    text.edit_reset()
+
+
+def load_note():
+    global pages, current_page
+    if os.path.exists(SAVE_FILE):
+        try:
+            with open(SAVE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            pages = data.get("pages", pages)
+        except:
+            pages = [""]
+
+    render_note(pages[current_page])
+    close_btn.config(text="✕")
+    text.edit_modified(False)
 
 
 def save_note():
@@ -42,32 +74,28 @@ def save_note():
             ensure_ascii=False,
             indent=2,
         )
+
+    render_note(pages[current_page])
     close_btn.config(text="✕")
     text.edit_modified(False)
 
 
-def load_note():
-    global pages, current_page
-    if os.path.exists(SAVE_FILE):
-        try:
-            with open(SAVE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            pages = data.get("pages", pages)
-        except:
-            pages = [""]
+def get_last_valid_page():
+    last = 0
 
-    text.delete("1.0", "end")
-    text.insert("1.0", pages[current_page])
+    for i, content in enumerate(pages):
+        if content.strip() != "":
+            last = i
 
-
-def on_close():
-    save_note()
-    text.config(bg="white")
-    root.after(50, root.destroy)
+    return last
 
 
 def switch_page(offset):
-    global current_page
+    global current_page, is_getting
+
+    if is_getting:
+        return
+
     pages[current_page] = text.get("1.0", "end-1c")
     last_page = get_last_valid_page()
     current_page += offset
@@ -84,9 +112,8 @@ def switch_page(offset):
     if current_page >= len(pages):
         pages.append("")
 
-    text.delete("1.0", "end")
-    text.insert("1.0", pages[current_page])
     page_label.config(text=str(current_page + 1))
+    render_note(pages[current_page])
 
 
 def start_move(event):
@@ -96,6 +123,11 @@ def start_move(event):
 
 
 def do_move(event):
+    global drag_x, drag_y, is_getting
+
+    if is_getting:
+        return
+
     x = event.x_root - drag_x
     y = event.y_root - drag_y
     root.geometry(f"+{x}+{y}")
@@ -111,6 +143,12 @@ def move_to_bottom_right():
 
 
 def auto_resize():
+    global is_getting
+
+    if is_getting:
+        root.after(200, auto_resize)
+        return
+
     pages[current_page] = text.get("1.0", "end-1c")
 
     def count_lines(text_value):
@@ -129,17 +167,6 @@ def auto_resize():
     root.after(200, auto_resize)
 
 
-def on_text_change(event):
-    ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
-
-    if event.keysym in ignore_keys:
-        return
-
-    if text.edit_modified():
-        close_btn.config(text="●")
-        text.edit_modified(False)
-
-
 def auto_indent(event):
     current_line = text.get("insert linestart", "insert")
     if current_line.strip() == "-":
@@ -156,12 +183,34 @@ def auto_indent(event):
         return None
 
 
+def on_text_change(event):
+    global is_getting
+
+    if is_getting:
+        return
+
+    ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
+
+    if event.keysym in ignore_keys:
+        return
+
+    if text.edit_modified():
+        close_btn.config(text="●")
+        text.edit_modified(False)
+
+
 def on_enter(e):
     e.widget.config(fg="orange")
 
 
 def on_leave(e):
     e.widget.config(fg="white")
+
+
+def on_close():
+    save_note()
+    text.config(bg="white")
+    root.after(50, root.destroy)
 
 
 # title bar
@@ -253,14 +302,19 @@ text = tk.Text(
     bg="#292929",
     fg="white",
     insertbackground="white",
-    selectbackground="orange",
-    selectforeground="black",
+    selectbackground="#335980",
     relief="flat",
     bd=0,
     highlightthickness=0,
     yscrollcommand=scrollbar.set,
     undo=True,
 )
+bold_font = tkfont.Font(family="Microsoft JhengHei", size=12, weight="bold")
+
+text.tag_config("red", foreground="#ff3300", font=bold_font)
+text.tag_config("orange", foreground="#ffa500")
+text.tag_config("yellow", foreground="#ffdd7e")
+
 text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
