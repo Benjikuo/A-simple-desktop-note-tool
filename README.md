@@ -2,7 +2,8 @@
 A lightweight Python desktop note-taking program.  
 This program is **my first open source project!**  
 
-If you are YZU student, check this 👇🏻
+If you are YZU (元智大學) student, check this out 👇🏻
+[https://github.com/Benjikuo/A-simple-desktop-note-tool/releases/tag/v1.3.0](https://github.com/Benjikuo/A-simple-desktop-note-tool/releases/tag/v1.3.0)
 
 <p>
   <img src="https://github.com/Benjikuo/A-simple-desktop-note-tool/blob/main/images/color.gif?raw=true" width="630">
