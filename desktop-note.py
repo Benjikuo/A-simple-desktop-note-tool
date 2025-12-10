@@ -1,14 +1,18 @@
 import tkinter.font as tkfont
 import tkinter as tk
+import ctypes
 import json
 import os
 import re
-import ctypes
+
+from getter import get_list
 
 SAVE_FILE = "note.json"
+SEPARATOR = "---------------------"
 
 pages = [""]
 current_page = 0
+is_getting = False
 
 # window
 root = tk.Tk()
@@ -17,6 +21,93 @@ root.overrideredirect(True)
 user32 = ctypes.windll.user32
 screen_width = user32.GetSystemMetrics(0)
 screen_height = user32.GetSystemMetrics(1)
+
+
+def loding_page(msg):
+    text.delete("1.0", "end")
+    text.insert("end", "     | 更新課表中 |", "orange")
+    text.insert(
+        "end",
+        "\n\n       /\\ _ /\\       |.\\\n      (   • _•)      |#|\n      / > ✐\\      \\'|\n\n    ",
+    )
+    text.insert(
+        "end",
+        msg,
+    )
+    root.update()
+
+
+def fail_page(my_note):
+    global is_getting
+
+    print("網路問題？")
+    text.delete("1.0", "end")
+    text.insert("end", "   x 無法載入清單 x")
+    text.insert(
+        "end",
+        "\n\n          ∧_,,,,_∧\n        ( ⸝⸝Q ᎔ Q⸝⸝ ) \n┌──Ｕ────Ｕ──┐\n│ 請確認網路再試 │\n└───────────┘",
+    )
+    root.update()
+
+    text.insert("end", "\n\n" + SEPARATOR + my_note)
+    pages[0] = text.get("1.0", "end-1c")
+    with open(SAVE_FILE, "w", encoding="utf-8") as f:
+        json.dump({"pages": pages}, f, ensure_ascii=False, indent=2)
+
+    is_getting = False
+    load_note()
+    root.after(250, move_to_bottom_right)
+
+
+def run_getter():
+    global current_page, is_getting
+
+    current_page = 0
+    switch_page(current_page)
+    is_getting = True
+
+    # my note
+    with open(SAVE_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    pages = data["pages"]
+    first_page = pages[0]
+
+    if SEPARATOR in first_page:
+        _, my_note = first_page.split(SEPARATOR, 1)
+    else:
+        my_note = first_page
+
+    # school note
+    try:
+        hw_names, hw_times = get_list(progress=loding_page)
+    except Exception:
+        fail_page(my_note)
+        return
+
+    school_note = "[學校]\n\n"
+
+    def clean_name(n, t):
+        match = re.search(r"\[(.*?)\]", n)
+        course_full = match.group(1) if match else ""
+        c = re.sub(r"[A-Za-z0-9]+$", "", course_full).strip()
+        n = n.replace("【作業】", "")
+        if course_full:
+            n = n.replace(f"[{course_full}]", "")
+        n = n.strip()
+        return c, n, t
+
+    for n, t in zip(hw_names, hw_times):
+        course, hw_name, hw_time = clean_name(n, t)
+        school_note += f"> {course}\n{hw_name}\n({hw_time})\n\n"
+
+    # save note
+    pages[0] = school_note + SEPARATOR + my_note
+    with open(SAVE_FILE, "w", encoding="utf-8") as f:
+        json.dump({"pages": pages}, f, ensure_ascii=False, indent=2)
+
+    is_getting = False
+    load_note()
+    root.after(250, move_to_bottom_right)
 
 
 def render_note(content):
@@ -90,7 +181,10 @@ def get_last_valid_page():
 
 
 def switch_page(offset):
-    global current_page
+    global current_page, is_getting
+
+    if is_getting:
+        return
 
     pages[current_page] = text.get("1.0", "end-1c")
     last_page = get_last_valid_page()
@@ -119,7 +213,10 @@ def start_move(event):
 
 
 def do_move(event):
-    global drag_x, drag_y
+    global drag_x, drag_y, is_getting
+
+    if is_getting:
+        return
 
     x = event.x_root - drag_x
     y = event.y_root - drag_y
@@ -136,6 +233,12 @@ def move_to_bottom_right():
 
 
 def auto_resize():
+    global is_getting
+
+    if is_getting:
+        root.after(200, auto_resize)
+        return
+
     pages[current_page] = text.get("1.0", "end-1c")
 
     def count_lines(text_value):
@@ -171,6 +274,11 @@ def auto_indent(event):
 
 
 def on_text_change(event):
+    global is_getting
+
+    if is_getting:
+        return
+
     ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
 
     if event.keysym in ignore_keys:
@@ -301,8 +409,9 @@ text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
 # key
-root.bind("<Button-2>", lambda e: on_close())
 root.bind("<Control-s>", lambda e: save_note())
+root.bind("<Control-w>", lambda e: run_getter())
+root.bind("<Button-2>", lambda e: on_close())
 root.bind("<Control-r>", lambda e: move_to_bottom_right())
 text.bind("<Return>", auto_indent)
 text.bind("<KeyRelease>", on_text_change)
@@ -316,4 +425,5 @@ auto_resize()
 switch_page(0)
 text.edit_reset()
 root.after(10, move_to_bottom_right)
+run_getter()
 root.mainloop()
