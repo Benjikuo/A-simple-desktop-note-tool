@@ -25,7 +25,7 @@ Ctrl + Z: undo the last change
 Ctrl + Y: redo the last change  
 
 **Mouse**  
-Right Click: drag note  
+Left Click: drag note  
 Middle Click: close note  
 
 <br>
