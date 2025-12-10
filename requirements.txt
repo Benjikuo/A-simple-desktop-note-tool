@@ -1,4 +1,2 @@
-tkinter
-json
-os
-ctypes
+selenium
+python-dotenv
