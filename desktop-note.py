@@ -9,7 +9,6 @@ SAVE_FILE = "note.json"
 
 pages = [""]
 current_page = 0
-is_getting = False
 
 # window
 root = tk.Tk()
@@ -91,10 +90,7 @@ def get_last_valid_page():
 
 
 def switch_page(offset):
-    global current_page, is_getting
-
-    if is_getting:
-        return
+    global current_page
 
     pages[current_page] = text.get("1.0", "end-1c")
     last_page = get_last_valid_page()
@@ -123,10 +119,7 @@ def start_move(event):
 
 
 def do_move(event):
-    global drag_x, drag_y, is_getting
-
-    if is_getting:
-        return
+    global drag_x, drag_y
 
     x = event.x_root - drag_x
     y = event.y_root - drag_y
@@ -143,12 +136,6 @@ def move_to_bottom_right():
 
 
 def auto_resize():
-    global is_getting
-
-    if is_getting:
-        root.after(200, auto_resize)
-        return
-
     pages[current_page] = text.get("1.0", "end-1c")
 
     def count_lines(text_value):
@@ -184,11 +171,6 @@ def auto_indent(event):
 
 
 def on_text_change(event):
-    global is_getting
-
-    if is_getting:
-        return
-
     ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
 
     if event.keysym in ignore_keys:
