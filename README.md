@@ -3,7 +3,7 @@ A lightweight Python desktop note-taking program.
 This program is **my first open source project!**  
 
 <p>
-  <img src="https://github.com/Benjikuo/A-simple-desktop-note-tool/blob/main/images/update.gif?raw=true" width="630">
+  <img src="https://github.com/Benjikuo/A-simple-desktop-note-tool/blob/main/images/color.gif?raw=true" width="630">
 </p>
 
 ## 🛠️ Why I built this
