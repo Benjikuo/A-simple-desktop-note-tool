@@ -5,7 +5,9 @@ import json
 import os
 import re
 
+from deep_translator import MyMemoryTranslator
 from getter_en import get_list
+
 
 SAVE_FILE = "note_en.json"
 SEPARATOR = "---------------------"
@@ -13,6 +15,7 @@ SEPARATOR = "---------------------"
 pages = [""]
 current_page = 0
 is_getting = False
+translator = MyMemoryTranslator(source="zh-TW", target="en-US")
 
 # window
 root = tk.Tk()
@@ -21,6 +24,20 @@ root.overrideredirect(True)
 user32 = ctypes.windll.user32
 screen_width = user32.GetSystemMetrics(0)
 screen_height = user32.GetSystemMetrics(1)
+
+
+def translate(text: str) -> str:
+    global title_count, title_sum
+
+    title_count += 1
+    loding_page(35 * title_count // title_sum, "Translating...")
+
+    if not text:
+        return ""
+    try:
+        return translator.translate(text)  # type: ignore
+    except:
+        return text
 
 
 def loding_page(bar, msg):
@@ -53,10 +70,10 @@ def fail_page(my_note):
     global is_getting
 
     text.delete("1.0", "end")
-    text.insert("end", "   x Can't load list x")
+    text.insert("end", "  x Can't load list x")
     text.insert(
         "end",
-        "\n\n          ∧_,,,,_∧\n        ( ⸝⸝Q ᎔ Q⸝⸝ ) \n┌──Ｕ────Ｕ──┐\n│ 請確認網路再試 │\n└───────────┘",
+        "\n\n          ∧_,,,,_∧\n        { ⸝⸝Q ᎔ Q⸝⸝ } \n┌──Ｕ────Ｕ──┐\n│ Check Internet │\n└───────────┘",
     )
     root.update()
 
@@ -71,7 +88,7 @@ def fail_page(my_note):
 
 
 def run_getter():
-    global current_page, is_getting
+    global current_page, is_getting, title_count, title_sum
 
     current_page = 0
     switch_page(current_page)
@@ -90,7 +107,7 @@ def run_getter():
 
     # school note
     try:
-        hw_names, hw_times = get_list(progress=loding_page)
+        pair_list = get_list(progress=loding_page)
     except Exception:
         fail_page(my_note)
         return
@@ -105,17 +122,26 @@ def run_getter():
         if course_full:
             n = n.replace(f"[{course_full}]", "")
         n = n.replace("【作業】", "")
+
+        c = translate(c)
+
         n = n.replace("[", "〚")
         n = n.replace("]", "〛")
         n = n.replace("(", "【")
         n = n.replace(")", "】")
         n = n.strip()
 
+        t = t.replace("天", "d ")
+        t = t.replace("時", "h ")
+        t = t.replace("分", "m")
+
         return c, n, t
 
-    for n, t in zip(hw_names, hw_times):
+    title_count = 0
+    title_sum = len(pair_list)
+    for n, t in pair_list:
         course, hw_name, hw_time = clean_name(n, t)
-        school_note += f"> {course}\n{hw_name}\n({hw_time})\n\n"
+        school_note += f'"{course}"\n{hw_name}\n({hw_time})\n\n'
 
     # save note
     pages[0] = school_note + SEPARATOR + my_note

@@ -65,4 +65,10 @@ def get_list(progress):
 
     time.sleep(0.5)
 
-    return hw_names, hw_times
+    filtered = [
+        (name, time)
+        for name, time in zip(hw_names, hw_times)
+        if name.startswith("【作業】")
+    ]
+
+    return filtered

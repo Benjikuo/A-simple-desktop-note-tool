@@ -90,7 +90,7 @@ def run_getter():
 
     # school note
     try:
-        hw_names, hw_times = get_list(progress=loding_page)
+        pair_list = get_list(progress=loding_page)
     except Exception:
         fail_page(my_note)
         return
@@ -105,6 +105,7 @@ def run_getter():
         if course_full:
             n = n.replace(f"[{course_full}]", "")
         n = n.replace("【作業】", "")
+
         n = n.replace("[", "〚")
         n = n.replace("]", "〛")
         n = n.replace("(", "【")
@@ -113,7 +114,7 @@ def run_getter():
 
         return c, n, t
 
-    for n, t in zip(hw_names, hw_times):
+    for n, t in pair_list:
         course, hw_name, hw_time = clean_name(n, t)
         school_note += f"> {course}\n{hw_name}\n({hw_time})\n\n"
 
