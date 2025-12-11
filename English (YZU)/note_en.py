@@ -5,9 +5,9 @@ import json
 import os
 import re
 
-from getter import get_list
+from getter_en import get_list
 
-SAVE_FILE = "note.json"
+SAVE_FILE = "note_en.json"
 SEPARATOR = "---------------------"
 
 pages = [""]
@@ -25,10 +25,10 @@ screen_height = user32.GetSystemMetrics(1)
 
 def loding_page(bar, msg):
     text.delete("1.0", "end")
-    text.insert("end", "    | Loading List |", "orange")
+    text.insert("end", "  | Get Homework |", "orange")
     text.insert(
         "end",
-        "\n\n       /\\ _ /\\       |.\\\n      (   • _•)      |#|\n      / > ✐\\      \\'|\n\n    ",
+        "\n\n       /\\ _ /\\       |.\\\n      (   • _•)      |#|\n      / > ✐\\      \\'|\n\n   ",
     )
     text.insert(
         "end",
@@ -95,7 +95,7 @@ def run_getter():
         fail_page(my_note)
         return
 
-    school_note = "[學校]\n\n"
+    school_note = "[School]\n\n"
 
     def clean_name(n, t):
         match = re.search(r"\[(.*?)\]", n)
