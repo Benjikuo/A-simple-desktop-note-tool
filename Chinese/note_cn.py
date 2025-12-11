@@ -5,9 +5,9 @@ import json
 import os
 import re
 
-from getter import get_list
+from getter_cn import get_list
 
-SAVE_FILE = "note.json"
+SAVE_FILE = "note_cn.json"
 SEPARATOR = "---------------------"
 
 pages = [""]
@@ -23,7 +23,7 @@ screen_width = user32.GetSystemMetrics(0)
 screen_height = user32.GetSystemMetrics(1)
 
 
-def loding_page(msg):
+def loding_page(bar, msg):
     text.delete("1.0", "end")
     text.insert("end", "     | 更新課表中 |", "orange")
     text.insert(
@@ -32,20 +32,31 @@ def loding_page(msg):
     )
     text.insert(
         "end",
-        msg,
+        msg + "\n\n",
     )
+
+    s = "["
+    for _ in range(bar):
+        s += "|"
+    for _ in range(35 - bar):
+        s += " "
+    s += "]"
+    text.insert(
+        "end",
+        s,
+    )
+
     root.update()
 
 
 def fail_page(my_note):
     global is_getting
 
-    print("網路問題？")
     text.delete("1.0", "end")
     text.insert("end", "   x 無法載入清單 x")
     text.insert(
         "end",
-        "\n\n          ∧_,,,,_∧\n        ( ⸝⸝Q ᎔ Q⸝⸝ ) \n┌──Ｕ────Ｕ──┐\n│ 請確認網路再試 │\n└───────────┘",
+        "\n\n          ∧_,,,,_∧\n        { ⸝⸝Q ᎔ Q⸝⸝ } \n┌──Ｕ────Ｕ──┐\n│ 請確認網路再試 │\n└───────────┘",
     )
     root.update()
 
@@ -90,10 +101,16 @@ def run_getter():
         match = re.search(r"\[(.*?)\]", n)
         course_full = match.group(1) if match else ""
         c = re.sub(r"[A-Za-z0-9]+$", "", course_full).strip()
-        n = n.replace("【作業】", "")
+
         if course_full:
             n = n.replace(f"[{course_full}]", "")
+        n = n.replace("【作業】", "")
+        n = n.replace("[", "〚")
+        n = n.replace("]", "〛")
+        n = n.replace("(", "【")
+        n = n.replace(")", "】")
         n = n.strip()
+
         return c, n, t
 
     for n, t in zip(hw_names, hw_times):
@@ -310,7 +327,7 @@ titlebar.pack(fill="x", side="top")
 # title
 title = tk.Label(
     titlebar,
-    text="A Note",
+    text="筆記本",
     fg="white",
     bg="#1e1e1e",
     font=("Microsoft JhengHei", 14, "bold"),
@@ -425,5 +442,5 @@ auto_resize()
 switch_page(0)
 text.edit_reset()
 root.after(10, move_to_bottom_right)
-run_getter()
+root.after(10, run_getter)
 root.mainloop()
