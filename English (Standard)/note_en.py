@@ -6,11 +6,10 @@ import os
 import re
 
 SAVE_FILE = "note_en.json"
-SEPARATOR = "---------------------"
+INIT_WIDTH = 224
 
 pages = [""]
 current_page = 0
-is_getting = False
 
 # window
 root = tk.Tk()
@@ -92,10 +91,7 @@ def get_last_valid_page():
 
 
 def switch_page(offset):
-    global current_page, is_getting
-
-    if is_getting:
-        return
+    global current_page
 
     pages[current_page] = text.get("1.0", "end-1c")
     last_page = get_last_valid_page()
@@ -124,10 +120,7 @@ def start_move(event):
 
 
 def do_move(event):
-    global drag_x, drag_y, is_getting
-
-    if is_getting:
-        return
+    global drag_x, drag_y
 
     x = event.x_root - drag_x
     y = event.y_root - drag_y
@@ -136,20 +129,41 @@ def do_move(event):
 
 def move_to_bottom_right():
     save_note()
-    w = root.winfo_width()
+    w = INIT_WIDTH
     h = root.winfo_height()
     x = screen_width - w
     y = screen_height - h - 48
-    root.geometry(f"+{x}+{y}")
+    root.geometry(f"{w}x{h}+{x}+{y}")
+
+
+def start_resize(event, side):
+    global resize_start_x, start_width, start_x, resize_side
+
+    resize_side = side
+    resize_start_x = event.x_root
+    start_width = root.winfo_width()
+    start_x = root.winfo_x()
+
+
+def do_resize(event):
+    global resize_start_x, start_width, start_x
+
+    dx = event.x_root - resize_start_x
+    min_width = 200
+
+    if resize_side == "right":
+        new_width = max(min_width, start_width + dx)
+        root.geometry(f"{new_width}x{root.winfo_height()}+{start_x}+{root.winfo_y()}")
+
+    elif resize_side == "left":
+        new_width = max(min_width, start_width - dx)
+        new_x = start_x + dx
+
+        if new_width > min_width:
+            root.geometry(f"{new_width}x{root.winfo_height()}+{new_x}+{root.winfo_y()}")
 
 
 def auto_resize():
-    global is_getting
-
-    if is_getting:
-        root.after(200, auto_resize)
-        return
-
     pages[current_page] = text.get("1.0", "end-1c")
 
     def count_lines(text_value):
@@ -162,9 +176,11 @@ def auto_resize():
 
     max_lines = max(count_lines(p) for p in pages)
     line_height = 20
-    new_height = min(max(max_lines * line_height, 200) + 100, 550)
+    new_height = min(max(max_lines * line_height, 200) + 100, 555)
 
-    root.geometry(f"200x{new_height}+{root.winfo_x()}+{root.winfo_y()}")
+    root.geometry(
+        f"{root.winfo_width()}x{new_height}+{root.winfo_x()}+{root.winfo_y()}"
+    )
     root.after(200, auto_resize)
 
 
@@ -185,11 +201,6 @@ def auto_indent(event):
 
 
 def on_text_change(event):
-    global is_getting
-
-    if is_getting:
-        return
-
     ignore_keys = {"Control_L", "Control_R", "Shift_L", "Shift_R", "Alt_L", "Alt_R"}
 
     if event.keysym in ignore_keys:
@@ -217,6 +228,10 @@ def on_close():
 # title bar
 titlebar = tk.Frame(root, bg="#1e1e1e", relief="raised", pady=5)
 titlebar.pack(fill="x", side="top")
+
+# botton
+botton_bar = tk.Frame(root, bg="#1e1e1e", height=5)
+botton_bar.pack(fill="x", side="bottom")
 
 # title
 title = tk.Label(
@@ -291,6 +306,12 @@ close_btn.bind("<Button-1>", lambda e: on_close())
 frame = tk.Frame(root, bg="#292929")
 frame.pack(fill="both", expand=True)
 
+resize_left = tk.Frame(frame, width=5, cursor="sb_h_double_arrow", bg="#1e1e1e")
+resize_left.pack(side="left", fill="y")
+
+resize_right = tk.Frame(frame, width=5, cursor="sb_h_double_arrow", bg="#1e1e1e")
+resize_right.pack(side="right", fill="y")
+
 scrollbar = tk.Scrollbar(frame, width=20, bg="#1e1e1e", activebackground="orange")
 scrollbar.pack(side="right", fill="y")
 
@@ -320,6 +341,10 @@ text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
 # key
+resize_left.bind("<Button-1>", lambda e: start_resize(e, "left"))
+resize_right.bind("<Button-1>", lambda e: start_resize(e, "right"))
+resize_left.bind("<B1-Motion>", do_resize)
+resize_right.bind("<B1-Motion>", do_resize)
 root.bind("<Control-s>", lambda e: save_note())
 root.bind("<Button-2>", lambda e: on_close())
 root.bind("<Control-r>", lambda e: move_to_bottom_right())
@@ -331,8 +356,8 @@ root.protocol("WM_DELETE_WINDOW", on_close)
 
 # start
 load_note()
-auto_resize()
 switch_page(0)
+auto_resize()
 text.edit_reset()
-root.after(10, move_to_bottom_right)
+root.after(20, move_to_bottom_right)
 root.mainloop()

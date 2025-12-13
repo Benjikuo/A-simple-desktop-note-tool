@@ -8,7 +8,8 @@ import re
 from getter_cn import get_list
 
 SAVE_FILE = "note_cn.json"
-SEPARATOR = "---------------------"
+SEPARATOR = "-----------------------"
+INIT_WIDTH = 224
 
 pages = [""]
 current_page = 0
@@ -25,17 +26,17 @@ screen_height = user32.GetSystemMetrics(1)
 
 def loding_page(bar, msg):
     text.delete("1.0", "end")
-    text.insert("end", "     | 更新課表中 |", "orange")
+    text.insert("end", "       | 更新課表中 |", "orange")
     text.insert(
         "end",
-        "\n\n       /\\ _ /\\       |.\\\n      (   • _•)      |#|\n      / > ✐\\      \\'|\n\n    ",
+        "\n\n         /\\ _ /\\        |.\\\n        (   • _•)       |#|\n        / > ✐\\       \\'|\n\n      ",
     )
     text.insert(
         "end",
         msg + "\n\n",
     )
 
-    s = "["
+    s = " ["
     for _ in range(bar):
         s += "|"
     for _ in range(35 - bar):
@@ -53,10 +54,10 @@ def fail_page(my_note):
     global is_getting
 
     text.delete("1.0", "end")
-    text.insert("end", "   x 無法載入清單 x")
+    text.insert("end", "    x 無法載入清單 x")
     text.insert(
         "end",
-        "\n\n          ∧_,,,,_∧\n        { ⸝⸝Q ᎔ Q⸝⸝ } \n┌──Ｕ────Ｕ──┐\n│ 請確認網路再試 │\n└───────────┘",
+        "\n\n            ∧_,,,,_∧\n          { ⸝⸝Q ᎔ Q⸝⸝ } \n  ┌──Ｕ────Ｕ──┐\n  │ 請確認網路再試 │\n  └───────────┘",
     )
     root.update()
 
@@ -167,6 +168,11 @@ def load_note():
 
 
 def save_note():
+    global is_getting
+
+    if is_getting:
+        return
+
     pages[current_page] = text.get("1.0", "end-1c")
 
     end = max(get_last_valid_page(), current_page)
@@ -243,11 +249,41 @@ def do_move(event):
 
 def move_to_bottom_right():
     save_note()
-    w = root.winfo_width()
+    w = INIT_WIDTH
     h = root.winfo_height()
     x = screen_width - w
     y = screen_height - h - 48
-    root.geometry(f"+{x}+{y}")
+    root.geometry(f"{w}x{h}+{x}+{y}")
+
+
+def start_resize(event, side):
+    global resize_start_x, start_width, start_x, resize_side
+
+    resize_side = side
+    resize_start_x = event.x_root
+    start_width = root.winfo_width()
+    start_x = root.winfo_x()
+
+
+def do_resize(event):
+    global resize_start_x, start_width, start_x, is_getting
+
+    if is_getting:
+        return
+
+    dx = event.x_root - resize_start_x
+    min_width = 200
+
+    if resize_side == "right":
+        new_width = max(min_width, start_width + dx)
+        root.geometry(f"{new_width}x{root.winfo_height()}+{start_x}+{root.winfo_y()}")
+
+    elif resize_side == "left":
+        new_width = max(min_width, start_width - dx)
+        new_x = start_x + dx
+
+        if new_width > min_width:
+            root.geometry(f"{new_width}x{root.winfo_height()}+{new_x}+{root.winfo_y()}")
 
 
 def auto_resize():
@@ -269,9 +305,11 @@ def auto_resize():
 
     max_lines = max(count_lines(p) for p in pages)
     line_height = 20
-    new_height = min(max(max_lines * line_height, 200) + 100, 550)
+    new_height = min(max(max_lines * line_height, 200) + 100, 555)
 
-    root.geometry(f"200x{new_height}+{root.winfo_x()}+{root.winfo_y()}")
+    root.geometry(
+        f"{root.winfo_width()}x{new_height}+{root.winfo_x()}+{root.winfo_y()}"
+    )
     root.after(200, auto_resize)
 
 
@@ -324,6 +362,10 @@ def on_close():
 # title bar
 titlebar = tk.Frame(root, bg="#1e1e1e", relief="raised", pady=5)
 titlebar.pack(fill="x", side="top")
+
+# botton
+botton_bar = tk.Frame(root, bg="#1e1e1e", height=5)
+botton_bar.pack(fill="x", side="bottom")
 
 # title
 title = tk.Label(
@@ -398,6 +440,12 @@ close_btn.bind("<Button-1>", lambda e: on_close())
 frame = tk.Frame(root, bg="#292929")
 frame.pack(fill="both", expand=True)
 
+resize_left = tk.Frame(frame, width=5, cursor="sb_h_double_arrow", bg="#1e1e1e")
+resize_left.pack(side="left", fill="y")
+
+resize_right = tk.Frame(frame, width=5, cursor="sb_h_double_arrow", bg="#1e1e1e")
+resize_right.pack(side="right", fill="y")
+
 scrollbar = tk.Scrollbar(frame, width=20, bg="#1e1e1e", activebackground="orange")
 scrollbar.pack(side="right", fill="y")
 
@@ -427,6 +475,10 @@ text.pack(fill="both", expand=True)
 scrollbar.config(command=text.yview)
 
 # key
+resize_left.bind("<Button-1>", lambda e: start_resize(e, "left"))
+resize_right.bind("<Button-1>", lambda e: start_resize(e, "right"))
+resize_left.bind("<B1-Motion>", do_resize)
+resize_right.bind("<B1-Motion>", do_resize)
 root.bind("<Control-s>", lambda e: save_note())
 root.bind("<Control-w>", lambda e: run_getter())
 root.bind("<Button-2>", lambda e: on_close())
@@ -439,9 +491,9 @@ root.protocol("WM_DELETE_WINDOW", on_close)
 
 # start
 load_note()
-auto_resize()
 switch_page(0)
+auto_resize()
 text.edit_reset()
-root.after(10, move_to_bottom_right)
-root.after(10, run_getter)
+root.after(20, move_to_bottom_right)
+root.after(20, run_getter)
 root.mainloop()
