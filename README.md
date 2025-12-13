@@ -20,7 +20,6 @@ If you are YZU (元智大學) student, check this update 👇🏻
 **Keyboard**  
 Ctrl + S: save your note  
 Ctrl + R: move right bottom corner of the screen  
-Ctrl + A: selects everything in the document  
 Ctrl + Z: undo the last change  
 Ctrl + Y: redo the last change  
 
