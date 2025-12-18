@@ -30,7 +30,7 @@ Middle Click: close note
 <br>
 
 ## 📜 License  
-This project is released under the **MIT License**.  
+Released under the **MIT License**.   
 You are free to use, modify, and share it for learning or personal projects.  
   
 <br>
