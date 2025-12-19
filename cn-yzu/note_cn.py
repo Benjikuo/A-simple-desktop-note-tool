@@ -115,9 +115,12 @@ def run_getter():
 
         return c, n, t
 
-    for n, t in pair_list:
-        course, hw_name, hw_time = clean_name(n, t)
-        school_note += f"> {course}\n{hw_name}\n({hw_time})\n\n"
+    if not pair_list:
+        school_note += "沒有任何作業 🎉\n\n"
+    else:
+        for n, t in pair_list:
+            course, hw_name, hw_time = clean_name(n, t)
+            school_note += f"> {course}\n{hw_name}\n({hw_time})\n\n"
 
     # save note
     pages[0] = school_note + SEPARATOR + my_note
