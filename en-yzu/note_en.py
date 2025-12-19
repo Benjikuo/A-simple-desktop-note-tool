@@ -138,11 +138,14 @@ def run_getter():
 
         return c, n, t
 
-    title_count = 0
-    title_sum = len(pair_list)
-    for n, t in pair_list:
-        course, hw_name, hw_time = clean_name(n, t)
-        school_note += f'"{course}"\n{hw_name}\n({hw_time})\n\n'
+    if not pair_list:
+        school_note += "No assignments 🎉\n\n"
+    else:
+        title_count = 0
+        title_sum = len(pair_list)
+        for n, t in pair_list:
+            course, hw_name, hw_time = clean_name(n, t)
+            school_note += f'"{course}"\n{hw_name}\n({hw_time})\n\n'
 
     # save note
     pages[0] = school_note + SEPARATOR + my_note
