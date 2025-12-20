@@ -5,7 +5,7 @@ import json
 import os
 import re
 
-from getter_cn import get_list
+from getter_zh import get_list
 
 SAVE_FILE = "note_cn.json"
 SEPARATOR = "-----------------------"
