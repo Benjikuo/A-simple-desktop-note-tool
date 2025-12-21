@@ -20,7 +20,7 @@ Check my update 👇🏻
 This project uses the following Python libraries:
 - **selenium** – for fetching data from the YZU portal (optional)
 - **python-dotenv** – for loading environment variables (optional)
-- **deep-translator** – for translation *(optional, used in the English YZU-enabled version only)*
+- **deep-translator** – for translation (optional, used in the English YZU-enabled version only)
 
 
 <br>
