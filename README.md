@@ -1,7 +1,7 @@
 # A-simple-desktop-note-tool
 
-![License](https://img.shields.io/badge/license-MIT-yellow)
-![Language](https://img.shields.io/badge/language-python-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![Language](https://img.shields.io/badge/Language-Python-blue)
 
 A lightweight Python desktop note-taking program.  
 This program is **my first open source project!**  
